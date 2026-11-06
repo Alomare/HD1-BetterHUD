@@ -91,7 +91,10 @@ end
 
 local faction_of = setmetatable({}, { __mode = "k" })
 
+-- Unit.get_data on a destroyed unit takes the game down in the engine, past any pcall (helldivers.exe +0x13b8e0, the lookup behind every get_data), so a unit is asked only while Unit.alive says it's there.
 local function enemy_of(unit)
+	local ok_alive, alive = pcall(g("Unit").alive, unit)
+	if not (ok_alive and alive) then return nil end
 	local ok, path = pcall(g("Unit").get_data, unit, "unit_path")
 	return ok and path and api.catalog.enemy(path) or nil
 end
