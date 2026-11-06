@@ -243,6 +243,7 @@ M.BUILDUP_KINDS = { "fire", "poison", "stun" }
 local BUILDUP_COLOR = { fire = FIRE, poison = POISON, stun = STUN }
 local buildups = {}
 local HALO = { 0, 0, 0 } -- the dark of a strip's track and an icon's outline
+M.HALO_ALPHA = 0.15 -- each of the eight offset copies of an icon's outline (0.35 before 1.14.1, which piled up to near black)
 M.STRIP_PX = 3 -- a strip's thickness, in pixels
 M.TRACK_PX = 1 -- the dark track round a strip, in pixels
 M.now = 0
@@ -376,7 +377,7 @@ local function draw_icons(kit, by, cx, top, now, scale)
 	local d = math.max(1, 1.5 * scale)
 	for _, item in ipairs(shown) do
 		-- The soft outline: the icon in black, a little off to each side, faint.
-		local halo = rgba(HALO, 0.35 * item.a)
+		local halo = rgba(HALO, M.HALO_ALPHA * item.a)
 		for _, o in ipairs({ { -d, 0 }, { d, 0 }, { 0, -d }, { 0, d }, { -d, -d }, { d, -d }, { -d, d }, { d, d } }) do
 			icon_at(kit, item.b.icon, x + o[1], y + o[2], s, s, halo)
 		end
