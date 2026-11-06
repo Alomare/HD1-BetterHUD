@@ -31,7 +31,8 @@ obsidian.log("Better HUD " .. tostring(obsidian.version) .. " ready")
 -- enemy, 0 to 1, as an icon over its health bar filled from the bottom in the status's color (or, with no
 -- icon, a strip under the bar); with drain, the fill runs down to empty over that many seconds; nil
 -- clears it. icon: { art = material, uv = {...} } or { icon = name }.
--- status_effect(unit, kind, seconds, icon): status_buildup(unit, kind, 1, seconds, icon).
+-- status_effect(unit, kind, seconds, icon): status_buildup(unit, kind, 1, seconds, icon), with the icon
+-- needed; 0 or nil seconds ends it.
 -- flash_health(unit, seconds): the health bar of that player's card flashes white, fading out over
 -- seconds (2 when left out).
 return {
