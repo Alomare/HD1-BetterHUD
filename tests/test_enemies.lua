@@ -113,6 +113,10 @@ return {
 		eq(enemies.effect(a, "acid", 5, icon), false)
 		eq(enemies.effect(a, "fire", 0), true)
 		eq(enemies.entry_of(a, "fire"), nil, "ended")
+		eq(enemies.effect(a, "fire", "4", icon), true, "seconds as text")
+		near(enemies.buildup_of(a, "fire", 14), 0.5, "read as the number")
+		eq(enemies.effect(a, "fire", "soon", icon), true, "text that isn't a number ends it")
+		eq(enemies.entry_of(a, "fire"), nil)
 		rawset(_G, "Unit", nil)
 	end },
 }

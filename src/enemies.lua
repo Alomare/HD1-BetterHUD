@@ -315,12 +315,13 @@ end
 
 -- obsidian.import("alomare.betterhud").status_effect(unit, kind, seconds, icon): an effect runs on an
 -- enemy for `seconds` from now (0 or nil ends it): its icon, full, running down over the seconds. The
--- same as status_buildup(unit, kind, 1, seconds, icon).
+-- same as status_buildup(unit, kind, 1, seconds, icon), with the icon needed.
 function M.effect(unit, kind, seconds, icon)
 	if unit == nil or not BUILDUP_COLOR[kind] then return false end
-	if not (tonumber(seconds) and seconds > 0) then return M.buildup(unit, kind, nil) end
+	local s = tonumber(seconds)
+	if not (s and s > 0) then return M.buildup(unit, kind, nil) end
 	if not valid_icon(icon) then return false end
-	return M.buildup(unit, kind, 1, seconds, icon)
+	return M.buildup(unit, kind, 1, s, icon)
 end
 
 -- An icon's opacity `now`: in fast from `start`, out over the last ICON_OUT seconds of a drain.
