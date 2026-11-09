@@ -3,6 +3,12 @@
 local enemies = obsidian.module("src/enemies")
 
 return {
+	{ "a bar out of view waits on the edge only from the game's own camera", function()
+		eq(enemies.pins_off_screen({}), true, "the game's camera")
+		eq(enemies.pins_off_screen(nil), true, "no camera yet")
+		eq(enemies.pins_off_screen({ mod_cfg = {} }), false, "third person view on")
+	end },
+
 	{ "the white stretch: hits renew it, and it fades all at once after the last", function()
 		local b = { pct = 1 }
 		enemies.lag_step(b, 0.8, 0)

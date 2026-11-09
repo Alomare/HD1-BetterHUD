@@ -187,6 +187,14 @@ local function behind(anchor)
 	return ok and s ~= nil and s.z <= 0
 end
 
+-- Whether a bar out of view may wait on the screen's edge. From the game's fixed camera that edge is the
+-- way to the enemy. Third Person Camera turns the view with the mouse, so a bar on the edge says nothing:
+-- the bar goes instead, as that mod's own labels do when not looked at. CameraManager.mod_cfg is the
+-- settings table that mod keeps while the third person view is on, and is nil otherwise.
+function M.pins_off_screen(cam)
+	return not (type(cam) == "table" and cam.mod_cfg ~= nil)
+end
+
 -- Every enemy that's lost health since it was first seen: hit by this machine's player, or a heavy.
 local function wanted(unit)
 	if not hits_known then return true end
@@ -423,7 +431,7 @@ local function draw_bar(kit, b, now, scale)
 	local x, y = sx - w / 2, sy + LIFT * scale
 	if not inside then
 		-- Out of view: held on the nearest edge, clear of it by EDGE and the status outline.
-		if behind(b.anchor) then return end
+		if not M.pins_off_screen(g("CameraManager")) or behind(b.anchor) then return end
 		local sw, sh = g("Application").resolution()
 		local margin = M.EDGE * scale + math.max(2, RING * scale) + M.OUTLINE_PX
 		x, y = M.pin(x, y, w, h, sw, sh, margin)
