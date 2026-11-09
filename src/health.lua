@@ -12,8 +12,8 @@ local M = {}
 
 local function g(name) return rawget(_G, name) end
 
-local HEIGHT = 9 -- design units
-local GAP = 0 -- between the card's bottom and the bar: none, the bar sits against the card
+local HEIGHT = 5.75 -- design units
+local BOTTOM = -9 -- the bar's bottom edge under the card; the space above the bar is what's left of the 9 units
 local Z = 20
 local CHUNK_LIFE, CHUNKS = 1, 5 -- a lost stretch fades out in this many seconds; this many at once
 
@@ -67,9 +67,36 @@ function M.shield_fill(ss)
 	return clamp(points / max)
 end
 
+-- After this many seconds at full health the bar fades to grey and half opacity; losing health brings it back.
+M.IDLE_AFTER, M.FADE_OUT, M.FADE_IN, M.FADED_OPACITY = 10, 1, 0.2, 0.5
+local FULL = 1 - 1e-4
+
+-- Advances s = { full = seconds full so far, t = how faded, 0 to 1 } by dt, and returns t.
+function M.step_idle(s, full, dt)
+	if full then
+		s.full = s.full + dt
+		if s.full >= M.IDLE_AFTER then s.t = math.min(1, s.t + dt / M.FADE_OUT) end
+	else
+		s.full = 0
+		s.t = math.max(0, s.t - dt / M.FADE_IN)
+	end
+	return s.t
+end
+
+-- A color { a, r, g, b } at fade t, as the four numbers: toward the color's own grey and half the alpha.
+function M.tint(c, t)
+	if t <= 0 then return c[1], c[2], c[3], c[4] end
+	local grey = 0.299 * c[2] + 0.587 * c[3] + 0.114 * c[4]
+	local function toward_grey(v) return math.floor(v + (grey - v) * t + 0.5) end
+	return math.floor(c[1] * (1 - (1 - M.FADED_OPACITY) * t) + 0.5), toward_grey(c[2]), toward_grey(c[3]), toward_grey(c[4])
+end
+
+local idle = {} -- slot -> the state for M.step_idle
+local fade = 0 -- how faded the bar being drawn is
+
 local function rect(gui, x, y, z, w, h, c)
 	if w <= 0 then return end
-	gui:rect(g("Vector3")(x, y, z), g("Vector2")(w, h), g("Color")(c[1], c[2], c[3], c[4]))
+	gui:rect(g("Vector3")(x, y, z), g("Vector2")(w, h), g("Color")(M.tint(c, fade)))
 end
 
 -- A soft shadow over a fill, coming from the left: darkest at the left end of the bar, clear at the right
@@ -96,8 +123,8 @@ local function shade(gui, x, y, z, w, h, pct)
 end
 
 -- Health and the most it can be, inside the bar against the right end, in white over a shadow.
-local TEXT_SIZE = 10 -- design units, about the bar's height
-local TEXT_X, TEXT_Y = 4, 1.5 -- from the bar's bottom right to the end of the words, and to their baseline
+local TEXT_SIZE = 6.4 -- design units, about the bar's height
+local TEXT_X, TEXT_Y = 4, 0.9 -- from the bar's bottom right to the end of the words, and to their baseline
 local INK, SHADOW = { 255, 255, 255, 255 }, { 210, 0, 0, 0 }
 
 local function numbers(gui, right, y, hp, max)
@@ -107,16 +134,25 @@ local function numbers(gui, right, y, hp, max)
 	-- The extents come in pixels, as in src/ammo.lua.
 	local ok, width = pcall(gui.get_text_extents, gui, text, nil, TEXT_SIZE)
 	local x = right - TEXT_X - ((ok and tonumber(width) or 0) / (tonumber(gui.ui_scale) or 1))
-	gui:text(text, V3(x + 0.6, y + TEXT_Y - 0.6, Z + 9), C(SHADOW[1], SHADOW[2], SHADOW[3], SHADOW[4]), nil, TEXT_SIZE)
-	gui:text(text, V3(x, y + TEXT_Y, Z + 10), C(INK[1], INK[2], INK[3], INK[4]), nil, TEXT_SIZE)
+	gui:text(text, V3(x + 0.6, y + TEXT_Y - 0.6, Z + 9), C(M.tint(SHADOW, fade)), nil, TEXT_SIZE)
+	gui:text(text, V3(x, y + TEXT_Y, Z + 10), C(M.tint(INK, fade)), nil, TEXT_SIZE)
 end
 
 -- A bar at x, y (its bottom left): backing, track, then a fill of `pct` with a lighter top edge, and with
--- `shaded`, the shadow over the fill.
+-- `shaded`, the shadow over the fill. While it fades the layers don't overlap, or their half opacities
+-- would stack into a nearly solid bar: the backing is only an outline and the track only the unfilled part.
 local function bar(gui, x, y, w, h, pct, fill, top, shaded)
-	rect(gui, x - 1, y - 1, Z, w + 2, h + 2, BACK)
-	rect(gui, x, y, Z + 1, w, h, TRACK)
-	rect(gui, x, y, Z + 3, w * pct, h, fill)
+	if fade > 0 then
+		rect(gui, x - 1, y - 1, Z, w + 2, 1, BACK)
+		rect(gui, x - 1, y + h, Z, w + 2, 1, BACK)
+		rect(gui, x - 1, y, Z, 1, h, BACK)
+		rect(gui, x + w, y, Z, 1, h, BACK)
+		rect(gui, x + w * pct, y, Z + 1, w * (1 - pct), h, TRACK)
+	else
+		rect(gui, x - 1, y - 1, Z, w + 2, h + 2, BACK)
+		rect(gui, x, y, Z + 1, w, h, TRACK)
+	end
+	rect(gui, x, y, Z + 3, w * pct, top and h - 1 or h, fill)
 	if top then rect(gui, x, y + h - 1, Z + 4, w * pct, 1, top) end
 	if shaded then shade(gui, x, y, Z + 5, w, h, pct) end
 end
@@ -169,22 +205,26 @@ local function draw(hud, dt, unit, slot, hs, cs, show_numbers)
 	-- A dead player has no bar.
 	if not unit or not hs or hs.is_dead or DEAD_STATES[info.state] then
 		bars[slot] = nil
+		idle[slot] = nil
 		return
 	end
 	local w = (info.width or 248) + 2
-	local x, y = -1, -(GAP + HEIGHT)
+	local x, y = -1, BOTTOM
 	gui:move(hud:get_player_hud_pos(slot))
 	do
 		local max = hs.max_hitpoints or 100
 		local hp = hs.hitpoints or max
 		if hp > 0 then
 			local pct = clamp(hp / max)
+			local ok, ss = pcall(shield_state, info, unit)
+			local fill = ok and M.shield_fill(ss)
+			idle[slot] = idle[slot] or { full = 0, t = 0 }
+			-- A shield taking damage is still news, so the bar stays awake until the shield is full or gone.
+			fade = M.step_idle(idle[slot], pct >= FULL and not (fill and fill < FULL), dt or 0)
 			bar(gui, x, y, w, HEIGHT, pct, RED, RED_TOP, true)
 			for _, c in ipairs(chunks_of(slot, pct, dt or 0)) do
 				rect(gui, x + w * c.from, y, Z + 2, w * (c.to - c.from), HEIGHT, { math.floor(230 * c.life / CHUNK_LIFE), LAG[1], LAG[2], LAG[3] })
 			end
-			local ok, ss = pcall(shield_state, info, unit)
-			local fill = ok and M.shield_fill(ss)
 			if fill then
 				local h = HEIGHT * SHIELD_HEIGHT
 				rect(gui, x, y + HEIGHT - h, Z + 6, w * fill, h, SHIELD)
@@ -196,14 +236,17 @@ local function draw(hud, dt, unit, slot, hs, cs, show_numbers)
 			-- Downed: what's left of the bleed-out pool, constitution being negative, and below it how
 			-- far getting up has come.
 			bars[slot] = nil
+			idle[slot] = nil
+			fade = 0
 			local pool = -(hs.constitution or -100)
 			bar(gui, x, y, w, HEIGHT, pool > 0 and clamp((hp + pool) / pool) or 0, DOWNED, nil, true)
 			local need = cs and tonumber(cs.get_up_presses_needed)
 			if need and need > 0 then
 				local h = HEIGHT / 2
-				bar(gui, x, y - GAP - h, w, h, clamp((tonumber(cs.get_up_presses) or 0) / need), YELLOW, YELLOW_TOP)
+				bar(gui, x, y - h, w, h, clamp((tonumber(cs.get_up_presses) or 0) / need), YELLOW, YELLOW_TOP)
 			end
 		end
+		fade = 0 -- a flash asked for by another mod shows at full strength
 		draw_flash(gui, unit, x, y, w, dt)
 	end
 	gui:move(g("Vector3")(0, 0, 0))

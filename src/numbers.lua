@@ -106,9 +106,9 @@ end
 -- it), with the game's hard drop shadow down and to the right. The kit draws text one layer over the layer set,
 -- so the shadow sits on the layer below the number.
 M.FONT = "body_large"
--- The shadow: 25% less opaque than Helldivers Arcade's (192), and a third closer to the number.
+-- The shadow: 25% less opaque than Helldivers Arcade's (192), and a third as far from the number.
 M.SHADOW = { 0, 0, 0, 144 }
-M.SHADOW_REACH = 2 / 3
+M.SHADOW_REACH = 1 / 3
 
 -- How far the shadow sits from the number, in pixels, for a number `size` pixels tall.
 function M.shadow_offset(size)

@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "alomare.betterhud",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "name": {
     "en": "Better HUD"
   },
@@ -44,7 +44,7 @@
       "description": { "en": "Replaces the lower grenade icon on each player card with the number of grenades, such as x3, so counts above two show too.", "pt-BR": "Troca o ícone de granada de baixo em cada cartão de jogador pelo número de granadas, como x3, para que contagens acima de duas também apareçam.", "zh-CN": "将每张玩家卡片上靠下的手雷图标换成手雷数量（如 x3），超过两枚时也能显示。", "fr": "Remplace l'icône de grenade du bas sur chaque carte de joueur par le nombre de grenades, comme x3, pour afficher aussi plus de deux grenades.", "es": "Cambia el icono de granada de abajo en cada tarjeta de jugador por el número de granadas, como x3, para que también se vean más de dos." } },
     { "id": "player_health", "type": "toggle", "default": true,
       "label": { "en": "Player health bars", "pt-BR": "Barras de vida dos jogadores", "zh-CN": "玩家生命条", "fr": "Barres de vie des joueurs", "es": "Barras de salud de los jugadores" },
-      "description": { "en": "A red bar under each player card, with a white chunk fading where health was lost and a yellow bar over it while a shield holds.", "pt-BR": "Uma barra vermelha sob o cartão de cada jogador, com um trecho branco que some onde a vida foi perdida e uma barra amarela por cima enquanto um escudo resiste.", "zh-CN": "每张玩家卡片下方的红色条，损失生命处会有渐隐的白色片段，护盾生效时上方会叠加一条黄色条。", "fr": "Une barre rouge sous la carte de chaque joueur, avec un morceau blanc qui s'efface là où la vie a été perdue, et une barre jaune par-dessus tant qu'un bouclier tient.", "es": "Una barra roja bajo la tarjeta de cada jugador, con un trozo blanco que se desvanece donde se perdió salud y una barra amarilla encima mientras aguanta un escudo." } },
+      "description": { "en": "A red bar under each player card, with a white chunk fading where health was lost and a yellow bar over it while a shield holds. After 10 seconds at full health the bar fades to grey and half opacity.", "pt-BR": "Uma barra vermelha sob o cartão de cada jogador, com um trecho branco que some onde a vida foi perdida e uma barra amarela por cima enquanto um escudo resiste. Após 10 segundos com a vida cheia, a barra fica cinza e com metade da opacidade.", "zh-CN": "每张玩家卡片下方的红色条，损失生命处会有渐隐的白色片段，护盾生效时上方会叠加一条黄色条。生命值满 10 秒后，生命条变灰并降至一半不透明度。", "fr": "Une barre rouge sous la carte de chaque joueur, avec un morceau blanc qui s'efface là où la vie a été perdue, et une barre jaune par-dessus tant qu'un bouclier tient. Après 10 secondes à pleine vie, la barre devient grise et à moitié transparente.", "es": "Una barra roja bajo la tarjeta de cada jugador, con un trozo blanco que se desvanece donde se perdió salud y una barra amarilla encima mientras aguanta un escudo. Tras 10 segundos con la salud al máximo, la barra se vuelve gris y con la mitad de opacidad." } },
     { "id": "player_health_numbers", "type": "toggle", "default": false,
       "label": { "en": "Health numbers", "pt-BR": "Números de vida", "zh-CN": "生命数值", "fr": "Chiffres de vie", "es": "Números de salud" },
       "description": { "en": "Current and maximum health at the right of each player bar.", "pt-BR": "Vida atual e máxima à direita de cada barra de jogador.", "zh-CN": "在每条玩家生命条右侧显示当前和最大生命值。", "fr": "Vie actuelle et maximale à droite de chaque barre de joueur.", "es": "Salud actual y máxima a la derecha de cada barra de jugador." } },

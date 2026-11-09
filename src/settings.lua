@@ -17,7 +17,7 @@ M.ROWS = {
 	{ id = "grenade_counter", kind = "toggle", default = true, label = "Grenade counter",
 		info = "Replaces the lower grenade icon on each player card with the number of grenades, such as x3, so counts above two show too." },
 	{ id = "player_health", kind = "toggle", default = true, label = "Player health bars",
-		info = "A red bar under each player card, with a white chunk fading where health was lost and a yellow bar over it while a shield holds." },
+		info = "A red bar under each player card, with a white chunk fading where health was lost and a yellow bar over it while a shield holds. After 10 seconds at full health the bar fades to grey and half opacity." },
 	{ id = "player_health_numbers", kind = "toggle", default = false, label = "Health numbers",
 		info = "Current and maximum health at the right of each player bar." },
 	{ id = "enemy_health", kind = "toggle", default = true, label = "Enemy health bars",
