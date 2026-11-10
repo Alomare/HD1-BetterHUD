@@ -195,13 +195,47 @@ function M.pins_off_screen(cam)
 	return not (type(cam) == "table" and cam.mod_cfg ~= nil)
 end
 
+-- Marks another mod puts on an enemy (M.mark): unit -> icon. A marked enemy's bar shows from the start,
+-- full health or not, and stays while the enemy lives, with the icon in the middle of it.
+local marks = {}
+
+-- obsidian.import("alomare.betterhud").elite_mark(unit, icon): keeps the enemy's health bar showing
+-- while it lives, with `icon` centred on the bar, white with a soft dark outline. icon: { art = material,
+-- uv = { u0, v0, u1, v1 } } for an image a mod ships, or { icon = name } for one of the game's; nil
+-- clears the mark, and the bar then fades as any other. Marks of units that are gone are dropped.
+function M.mark(unit, icon)
+	if unit == nil then return false end
+	if icon == nil then
+		marks[unit] = nil
+		return true
+	end
+	if not (type(icon) == "table" and (icon.art ~= nil or icon.icon ~= nil)) then return false end
+	marks[unit] = icon
+	return true
+end
+
+function M.mark_of(unit)
+	return marks[unit]
+end
+
+local function drop_unmarked()
+	local U = g("Unit")
+	for u in pairs(marks) do
+		local ok, alive = pcall(U.alive, u)
+		if not (ok and alive) then marks[u] = nil end
+	end
+end
+
 -- Every enemy that's lost health since it was first seen: hit by this machine's player, or a heavy.
+-- A marked enemy, from the start.
 local function wanted(unit)
+	if marks[unit] then return true end
 	if not hits_known then return true end
 	return hit_by_me[unit] ~= nil or is_heavy(unit)
 end
 
 local function follow(now)
+	drop_unmarked()
 	local seen = {}
 	for _, unit in ipairs(api.enemies.list()) do
 		seen[unit] = true
@@ -209,7 +243,7 @@ local function follow(now)
 		local b = tracked[unit]
 		if s and s.max_hitpoints and s.max_hitpoints > 0 then
 			local pct = fraction(s)
-			if not b and pct < 1 and wanted(unit) then
+			if not b and (pct < 1 or marks[unit]) and wanted(unit) then
 				b = { unit = unit, pct = 1, born = now, hit = now, max = s.max_hitpoints }
 				tracked[unit] = b
 			end
@@ -225,6 +259,8 @@ local function follow(now)
 	end
 end
 
+-- A bar's opacity `now`. A marked enemy's bar doesn't fade while it lives; once the mark is cleared, it
+-- fades as any other.
 local function alpha_of(b, now)
 	if b.dead then
 		local t = now - b.dead
@@ -232,15 +268,19 @@ local function alpha_of(b, now)
 		return math.max(0, 1 - (t - DEATH_HOLD) / DEATH_FADE)
 	end
 	local a = math.min(1, (now - b.born) / FADE_IN)
+	if marks[b.unit] then return a end
 	local idle = now - b.hit - LINGER
 	if idle > 0 then a = a * math.max(0, 1 - idle / FADE_OUT) end
 	return a
 end
+M.alpha_of = alpha_of
 
 local function gone(b, now)
 	if b.dead then return now - b.dead > DEATH_HOLD + DEATH_FADE end
+	if marks[b.unit] then return false end
 	return now - b.hit > LINGER + FADE_OUT
 end
+M.gone = gone
 
 local function rgba(c, a) return { c[1], c[2], c[3], math.floor(255 * a) } end
 
@@ -399,6 +439,29 @@ local function draw_icons(kit, by, cx, top, now, scale)
 	end
 end
 
+-- A mark's icon, centred on the bar at cx, cy: white over the same soft outline as the status icons.
+-- MARK design units across, taller than every bar, so it stands out over the bar's top and bottom.
+M.MARK = 14
+local function halo_step(scale) return math.max(1, 1.5 * scale) end
+
+function M.draw_mark(kit, icon, cx, cy, scale)
+	local s, d = M.MARK * scale, halo_step(scale)
+	local x, y = cx - s / 2, cy - s / 2
+	local halo = rgba(HALO, M.HALO_ALPHA)
+	for _, o in ipairs({ { -d, 0 }, { d, 0 }, { 0, -d }, { 0, d }, { -d, -d }, { d, -d }, { -d, d }, { d, d } }) do
+		icon_at(kit, icon, x + o[1], y + o[2], s, s, halo)
+	end
+	icon_at(kit, icon, x, y, s, s, rgba({ 255, 255, 255 }, 1))
+end
+
+-- Where the status icons start over a bar at y, h tall: clear of the bar's outline and status ring, and
+-- of a mark's icon and its outline where it stands out over the bar's top.
+function M.icons_top(y, h, ring_clear, marked, scale)
+	local top = y + h + M.OUTLINE_PX + ring_clear
+	if marked then top = math.max(top, y + h / 2 + M.MARK * scale / 2 + halo_step(scale)) end
+	return top
+end
+
 -- Both, and the entries run out dropped.
 local function draw_buildup(kit, unit, x, y, w, h, now, scale, ring_clear)
 	local by = buildups[unit]
@@ -411,7 +474,7 @@ local function draw_buildup(kit, unit, x, y, w, h, now, scale, ring_clear)
 		return
 	end
 	draw_strips(kit, by, x, y, w, now)
-	draw_icons(kit, by, x + w / 2, y + h + M.OUTLINE_PX + ring_clear, now, scale)
+	draw_icons(kit, by, x + w / 2, M.icons_top(y, h, ring_clear, marks[unit] ~= nil, scale), now, scale)
 end
 
 local function draw_bar(kit, b, now, scale)
@@ -471,6 +534,8 @@ local function draw_bar(kit, b, now, scale)
 	for _, band in ipairs(SHADE) do
 		kit:rect(x, y + h * band[1], w, h * (band[2] - band[1]), band[3])
 	end
+	local mark = marks[unit]
+	if mark then M.draw_mark(kit, mark, x + w / 2, y + h / 2, scale) end
 	-- The icons clear of the status outline's ring, which pulses around the bar while a status is on.
 	draw_buildup(kit, unit, x, y, w, h, now, scale, math.max(2, RING * scale))
 end
@@ -513,7 +578,12 @@ function M.install(active)
 				end
 			end
 			if (hud and (hud.hidden or hud.enabled == false)) or (api.map.is_open and api.map.is_open()) then return end
-			table.sort(list, function(a, b) return a.hit > b.hit end)
+			-- The latest hit first, after the marked enemies, so LIMIT keeps their bars.
+			table.sort(list, function(a, b)
+				local ma, mb = marks[a.unit] ~= nil, marks[b.unit] ~= nil
+				if ma ~= mb then return ma end
+				return a.hit > b.hit
+			end)
 			-- Pixels a design unit: the HUD's own scale, the player's UI scale setting in it.
 			local scale = hud and hud.hd_gui and hud.hd_gui.ui_scale
 			if not scale then

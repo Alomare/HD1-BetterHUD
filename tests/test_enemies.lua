@@ -125,4 +125,53 @@ return {
 		eq(enemies.entry_of(a, "fire"), nil)
 		rawset(_G, "Unit", nil)
 	end },
+	{ "a mark: set, checked and cleared", function()
+		local a, icon = {}, { art = "arcade_art", uv = { 0, 0, 0.1, 0.1 } }
+		eq(enemies.mark(a, icon), true)
+		eq(enemies.mark_of(a), icon)
+		eq(enemies.mark(a, { size = 3 }), false, "not an icon")
+		eq(enemies.mark(a, "fire"), false, "not an icon")
+		eq(enemies.mark_of(a), icon, "kept")
+		eq(enemies.mark(nil, icon), false, "no unit")
+		eq(enemies.mark(a, { icon = "stratagem_airstrike" }), true, "one of the game's")
+		eq(enemies.mark(a, nil), true)
+		eq(enemies.mark_of(a), nil, "cleared")
+	end },
+	{ "a marked enemy's bar stays while it lives, and fades as any other once cleared", function()
+		local a = {}
+		local b = { unit = a, born = 0, hit = 0 }
+		enemies.mark(a, { icon = "x" })
+		eq(enemies.alpha_of(b, 1000), 1, "no fade long after the last hit")
+		eq(enemies.gone(b, 1000), false, "kept")
+		b.dead = 1000
+		eq(enemies.gone(b, 1010), true, "goes once it dies")
+		b.dead = nil
+		enemies.mark(a, nil)
+		eq(enemies.alpha_of(b, 1000), 0, "faded once cleared")
+		eq(enemies.gone(b, 1000), true)
+	end },
+	{ "a mark's icon sits centred on the bar, over its soft outline, taller than every bar", function()
+		local calls = {}
+		local kit = { art = function(_, art, x, y, w, h, c, uv) calls[#calls + 1] = { x = x, y = y, w = w, h = h, c = c } end }
+		enemies.draw_mark(kit, { art = "m", uv = { 0, 0, 1, 1 } }, 100, 50, 2)
+		eq(#calls, 9, "eight outline copies and the icon")
+		local last = calls[9]
+		near(last.x + last.w / 2, 100, "centred across")
+		near(last.y + last.h / 2, 50, "centred up and down")
+		eq(last.c[1] + last.c[2] + last.c[3], 765, "white")
+		eq(calls[1].c[1], 0, "outline dark")
+		for _, t in ipairs(enemies.TIERS) do eq(enemies.MARK > t.h, true, "taller than tier " .. t.hp) end
+	end },
+	{ "status icons over a marked bar clear the mark", function()
+		for _, t in ipairs(enemies.TIERS) do
+			for _, scale in ipairs({ 1, 1.5, 3 }) do
+				local h, ring = t.h * scale, math.max(2, 1.6 * scale)
+				local plain = enemies.icons_top(100, h, ring, false, scale)
+				local marked = enemies.icons_top(100, h, ring, true, scale)
+				eq(plain, 100 + h + enemies.OUTLINE_PX + ring, "as before without a mark")
+				eq(marked >= plain, true, "never lower than without")
+				eq(marked >= 100 + h / 2 + enemies.MARK * scale / 2, true, "over the mark's top")
+			end
+		end
+	end },
 }

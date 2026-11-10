@@ -35,9 +35,12 @@ obsidian.log("Better HUD " .. tostring(obsidian.version) .. " ready")
 -- needed; 0 or nil seconds ends it.
 -- flash_health(unit, seconds): the health bar of that player's card flashes white, fading out over
 -- seconds (2 when left out).
+-- elite_mark(unit, icon): the enemy's health bar shows while it lives, full health or not, with the icon
+-- centred on it; nil clears it. icon: { art = material, uv = {...} } or { icon = name }.
 return {
 	grenade_meter = grenades.meter,
 	flash_health = health.flash,
 	status_buildup = enemies.buildup,
 	status_effect = enemies.effect,
+	elite_mark = enemies.mark,
 }
