@@ -9,6 +9,21 @@ return {
 		eq(enemies.pins_off_screen({ mod_cfg = {} }), false, "third person view on")
 	end },
 
+	{ "Integrated Third Person turns the edge off while the third person view steers", function()
+		local on = true
+		local import = obsidian.import
+		obsidian.import = function(id)
+			if id == "alomare.integratedthirdperson" then return { active = function() return on end } end
+			return import(id)
+		end
+		local fresh = dofile("src/enemies.lua")
+		local first = fresh.pins_off_screen({})
+		obsidian.import = import
+		eq(first, false, "third person on")
+		on = false
+		eq(fresh.pins_off_screen({}), true, "top-down camera")
+	end },
+
 	{ "the white stretch: hits renew it, and it fades all at once after the last", function()
 		local b = { pct = 1 }
 		enemies.lag_step(b, 0.8, 0)

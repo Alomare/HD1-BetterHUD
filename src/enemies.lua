@@ -190,9 +190,20 @@ end
 -- Whether a bar out of view may wait on the screen's edge. From the game's fixed camera that edge is the
 -- way to the enemy. Third Person Camera turns the view with the mouse, so a bar on the edge says nothing:
 -- the bar goes instead, as that mod's own labels do when not looked at. CameraManager.mod_cfg is the
--- settings table that mod keeps while the third person view is on, and is nil otherwise.
+-- settings table that mod keeps while the third person view is on, and is nil otherwise. Integrated Third
+-- Person answers the same through active() in what obsidian.import hands out.
+local itp
 function M.pins_off_screen(cam)
-	return not (type(cam) == "table" and cam.mod_cfg ~= nil)
+	if type(cam) == "table" and cam.mod_cfg ~= nil then return false end
+	if itp == nil then
+		local ok, mod = pcall(function() return obsidian.import and obsidian.import("alomare.integratedthirdperson") end)
+		itp = ok and type(mod) == "table" and type(mod.active) == "function" and mod or false
+	end
+	if itp then
+		local ok, on = pcall(itp.active)
+		if ok and on then return false end
+	end
+	return true
 end
 
 -- Marks another mod puts on an enemy (M.mark): unit -> icon. A marked enemy's bar shows from the start,
