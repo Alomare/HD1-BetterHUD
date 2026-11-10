@@ -441,7 +441,7 @@ end
 
 -- A mark's icon, centred on the bar at cx, cy: white over the same soft outline as the status icons.
 -- MARK design units across, taller than every bar, so it stands out over the bar's top and bottom.
-M.MARK = 14
+M.MARK = 21
 local function halo_step(scale) return math.max(1, 1.5 * scale) end
 
 function M.draw_mark(kit, icon, cx, cy, scale)
