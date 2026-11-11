@@ -23,7 +23,7 @@ M.ROWS = {
 	{ id = "stamina_bar", kind = "toggle", default = true, label = "Stamina bar",
 		info = "A thin white bar under the health bar of each player on this computer, emptying while sprinting and filling back up after. After 10 seconds full the bar fades to grey and half opacity. Players on other computers get none, as the game does not send stamina over the network." },
 	{ id = "enemy_health", kind = "toggle", default = true, label = "Enemy health bars",
-		info = "A bar over every enemy the player hits and every heavy that any player hurts. The bar of an enemy out of view waits at the edge of the screen." },
+		info = "A bar over every enemy the player hits and every heavy that any player hurts. The bar of an enemy out of view waits at the edge of the screen. In the shoulder view of Integrated Third Person, that bar hides until the enemy is in view." },
 	{ id = "reload_circle", kind = "toggle", default = true, label = "Reload circle",
 		info = "A ring to the left of each local Helldiver that fills while the weapon in hand reloads." },
 	{ id = "ammo_circle", kind = "toggle", default = true, label = "Ammo circle",
