@@ -22,28 +22,27 @@ return {
 		eq(reload.UP > 0 and reload.UP < 20, true, "a little up")
 	end },
 
-	{ "in the shoulder view the circles sit at half height, on the side away from the shoulder", function()
+	{ "in the shoulder view the circles sit at half height, on the side away from the Helldiver", function()
 		local x, y = reload.shoulder_spot(1920, 1080, 1, 1.2)
-		near(x, 960 - reload.SHOULDER_GAP * 1.2, "left with the camera over the right shoulder")
+		near(x, 960 + reload.SHOULDER_GAP * 1.2, "right with the camera over the right shoulder (the Helldiver left)")
 		near(y, 540, "half height")
 		x = reload.shoulder_spot(1920, 1080, -1, 1.2)
-		near(x, 960 + reload.SHOULDER_GAP * 1.2, "right with the camera over the left shoulder")
+		near(x, 960 - reload.SHOULDER_GAP * 1.2, "left with the camera over the left shoulder")
 		near(reload.shoulder_spot(1920, 1080, 0, 1.2), 960, "half way across: the middle")
+		eq(reload.SHOULDER_SIZE, 1.5, "half again as big")
 	end },
 
-	{ "the shoulder view spot clears the Helldiver and the crosshair at every UI scale", function()
-		-- In design units from the middle at UI scale 1, with the default camera of Integrated Third Person:
-		-- the Helldiver spans 63 to 159, and from 247 while zoomed in to aim. Enemy indicators ring the
-		-- crosshair out to about 87 (0.085 of the screen height and the biggest mark, at 1080 lines).
+	{ "the shoulder view ring stays clear of the enemy indicators at every UI scale", function()
+		-- Integrated Third Person draws the enemy indicators out to 0.11 of the screen height, plus the arc
+		-- (2.4 px) and arrow (5.5 px) of the largest mark (1.5 times), at 1080 lines.
+		local marks = 0.11 * 1080 + (2.4 + 5.5) * 1.5
 		local res = 1.5 -- 1920x1080
 		for _, ui in ipairs({ 0.7, 0.8, 0.9, 1 }) do
 			local scale = res * ui
 			local x = reload.shoulder_spot(1920, 1080, 1, scale)
-			local centre = (960 - x) / res
-			local inner, outer = centre - reload.outer_radius(scale) / res, centre + reload.outer_radius(scale) / res
-			eq(inner > 159, true, "past the Helldiver at UI scale " .. ui)
-			eq(inner > 87, true, "clear of the crosshair at UI scale " .. ui)
-			if ui <= 0.8 then eq(outer < 247, true, "short of the zoomed-in Helldiver at UI scale " .. ui) end
+			local inner = (x - 960) - reload.outer_radius(scale * reload.SHOULDER_SIZE)
+			eq(inner > marks, true, "outside the indicators at UI scale " .. ui .. ": " .. inner)
+			eq(x + reload.outer_radius(scale * reload.SHOULDER_SIZE) < 1920 * 0.75, true, "near the middle at UI scale " .. ui)
 		end
 	end },
 

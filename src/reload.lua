@@ -14,8 +14,8 @@
 -- While Integrated Third Person steers the view from over the shoulder (src/itp.lua), the crosshair is in
 -- the middle of the screen and the Helldiver stands to one side of it, on the side away from the shoulder
 -- the camera sits over. The rings then keep a fixed spot at half the screen height, SHOULDER_GAP design
--- units from the middle on that same side, out past the Helldiver. When the camera swaps shoulders, the spot
--- eases across to the other side at SWAP_RATE.
+-- units from the middle on the other side, the side of the shoulder, where the Helldiver isn't, and draw
+-- SHOULDER_SIZE times as big. When the camera swaps shoulders, the spot eases across at SWAP_RATE.
 --
 -- Drawn on a kit with no frame, in screen pixels from the bottom left, as api.world.to_screen answers.
 -- Sizes are in the HUD's design units at 100% UI scale, times the HUD's scale: the resolution's scale
@@ -50,19 +50,21 @@ local DONE = 0.1 -- seconds a finished ring takes to grow and fade out
 local GROW = 0.45 -- how much bigger it ends, of its size
 local NEAR_END = 0.85 -- a reload that stops past this far counts as finished, not cancelled
 local BUTTON = 0.9 -- of the hole inside the ring, across, for the reload button
--- The spot in the shoulder view: design units from the middle of the screen to the centre of the ring. With
--- the default camera of Integrated Third Person (3 m back, 0.65 m to the side, a 70 degree view), the Helldiver
--- spans about 63 to 159 design units from the middle at UI scale 1, and about 247 to 541 while the aim
--- button zooms in. 250 clears the Helldiver at UI scale 0.7 and up, and at the default 0.8 the ring also
--- stays between the crosshair and the zoomed-in Helldiver.
-M.SHOULDER_GAP = 250
+-- The spot in the shoulder view: design units from the middle of the screen to the centre of the ring, on
+-- the side away from the Helldiver. The enemy indicators of Integrated Third Person ring the crosshair out to
+-- about 131 pixels at 1080 lines (0.11 of the screen height, plus the arc and arrow of the largest mark),
+-- which no UI scale changes; 150 keeps the ring outside them from UI scale 0.7 up.
+M.SHOULDER_GAP = 150
+-- How much bigger the rings draw in the shoulder view.
+M.SHOULDER_SIZE = 1.5
 -- How fast the spot eases across: each second, what is left of the way shrinks by e to this power.
 M.SWAP_RATE = 10
 
--- The spot in the shoulder view, in pixels, on a screen w by h: side 1 (the camera over the right shoulder) is
--- left of the middle, -1 right of it, and anything between is on the way across.
+-- The spot in the shoulder view, in pixels, on a screen w by h: side 1 (the camera over the right shoulder,
+-- the Helldiver left of the middle) is right of the middle, -1 left of it, and anything between is on the way
+-- across.
 function M.shoulder_spot(w, h, side, scale)
-	return w / 2 - side * M.SHOULDER_GAP * scale, h / 2
+	return w / 2 + side * M.SHOULDER_GAP * scale, h / 2
 end
 
 -- The side `dt` seconds further from `current` toward `target`.
@@ -257,15 +259,16 @@ function M.install(reload_on, ammo_on)
 						if x then x, y = x - M.LEFT * scale, y + M.UP * scale end
 					end
 					if x and inside then
+						local ring = side and scale * M.SHOULDER_SIZE or scale
 						local dx, dy = ammo_circle.shake_offset(t, clock)
-						local cx, cy = x + dx * scale, y + dy * scale
+						local cx, cy = x + dx * ring, y + dy * ring
 						if p then
 							kit:opacity(alpha)
-							M.draw(kit, cx, cy, p, scale * grow)
+							M.draw(kit, cx, cy, p, ring * grow)
 						elseif discharge then
 							-- An arc weapon let go: the ring full and white, fading out.
 							kit:opacity(discharge)
-							M.draw(kit, cx, cy, 1, scale, { fill = ammo_circle.WHITE })
+							M.draw(kit, cx, cy, 1, ring, { fill = ammo_circle.WHITE })
 						else
 							kit:opacity(ammo_alpha)
 							local fill, ccw, color = ammo_circle.look(kind, share, rounds, empty, size, ready)
@@ -276,11 +279,11 @@ function M.install(reload_on, ammo_on)
 							elseif empty then
 								track = ammo_circle.flash(clock)
 							end
-							M.draw(kit, cx, cy, fill, scale, { fill = color, ccw = ccw, track = track })
+							M.draw(kit, cx, cy, fill, ring, { fill = color, ccw = ccw, track = track })
 							-- An empty magazine or an overheated beam weapon: both reload.
 							if empty and (rounds or kind == "beamweapon") then
 								kit:layer(424)
-								ammo_circle.draw_button(kit, ammo_circle.reload_button(player.pad), cx, cy, 2 * M.inner_radius(scale) * BUTTON)
+								ammo_circle.draw_button(kit, ammo_circle.reload_button(player.pad), cx, cy, 2 * M.inner_radius(ring) * BUTTON)
 							end
 						end
 						kit:opacity(1)
