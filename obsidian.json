@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "alomare.betterhud",
-  "version": "1.16.1",
+  "version": "1.17.0",
   "name": {
     "en": "Better HUD"
   },
@@ -20,6 +20,7 @@
   "entry": "main.lua",
   "source": "https://github.com/Alomare/HD1-BetterHUD",
   "modules": [
+    "src/itp.lua",
     "src/words.lua",
     "src/settings.lua",
     "src/ammo.lua",
@@ -48,6 +49,9 @@
     { "id": "player_health_numbers", "type": "toggle", "default": false,
       "label": { "en": "Health numbers", "pt-BR": "Números de vida", "zh-CN": "生命数值", "fr": "Chiffres de vie", "es": "Números de salud" },
       "description": { "en": "Current and maximum health at the right of each player bar.", "pt-BR": "Vida atual e máxima à direita de cada barra de jogador.", "zh-CN": "在每条玩家生命条右侧显示当前和最大生命值。", "fr": "Vie actuelle et maximale à droite de chaque barre de joueur.", "es": "Salud actual y máxima a la derecha de cada barra de jugador." } },
+    { "id": "stamina_bar", "type": "toggle", "default": true,
+      "label": { "en": "Stamina bar", "pt-BR": "Barra de vigor", "zh-CN": "体力条", "fr": "Barre d'endurance", "es": "Barra de resistencia" },
+      "description": { "en": "A thin white bar under the health bar of each player on this computer, emptying while sprinting and filling back up after. After 10 seconds full the bar fades to grey and half opacity. Players on other computers get none, as the game does not send stamina over the network.", "pt-BR": "Uma barra branca fina sob a barra de vida de cada jogador neste computador, que se esvazia durante a corrida e volta a encher depois. Após 10 segundos cheia, a barra fica cinza e com metade da opacidade. Jogadores em outros computadores não têm, pois o jogo não envia o vigor pela rede.", "zh-CN": "本机每名玩家的生命条下方的一条白色细条，冲刺时减少，之后回满。满值 10 秒后，该条变灰并降至一半不透明度。游戏不会通过网络发送体力，因此其他电脑上的玩家没有此条。", "fr": "Une fine barre blanche sous la barre de vie de chaque joueur sur cet ordinateur, qui se vide pendant le sprint et se remplit ensuite. Après 10 secondes pleine, la barre devient grise et à moitié transparente. Les joueurs sur d'autres ordinateurs n'en ont pas, car le jeu n'envoie pas l'endurance sur le réseau.", "es": "Una barra blanca fina bajo la barra de salud de cada jugador en este ordenador, que se vacía mientras se corre y se vuelve a llenar después. Tras 10 segundos llena, la barra se vuelve gris y con la mitad de opacidad. Los jugadores en otros ordenadores no la tienen, porque el juego no envía la resistencia por la red." } },
     { "id": "enemy_health", "type": "toggle", "default": true,
       "label": { "en": "Enemy health bars", "pt-BR": "Barras de vida dos inimigos", "zh-CN": "敌人生命条", "fr": "Barres de vie des ennemis", "es": "Barras de salud de los enemigos" },
       "description": { "en": "A bar over every enemy the player hits and every heavy that any player hurts. The bar of an enemy out of view waits at the edge of the screen.", "pt-BR": "Uma barra sobre cada inimigo que o jogador acerta e cada inimigo pesado que qualquer jogador fere. A barra de um inimigo fora de vista fica na borda da tela.", "zh-CN": "玩家击中的每个敌人，以及任何玩家伤到的每个重型敌人，头顶都会显示一条生命条。视野外敌人的生命条停在屏幕边缘。", "fr": "Une barre au-dessus de chaque ennemi touché par le joueur et de chaque ennemi lourd blessé par n'importe quel joueur. La barre d'un ennemi hors de vue attend au bord de l'écran.", "es": "Una barra sobre cada enemigo al que da el jugador y cada enemigo pesado al que hiera cualquier jugador. La barra de un enemigo fuera de la vista espera en el borde de la pantalla." } },

@@ -109,6 +109,17 @@ return {
 		eq(#list, 0, "none")
 	end },
 
+	{ "in the shoulder view a number on a player starts over the name card", function()
+		local least, up = numbers.lift("player", true)
+		eq(least, numbers.NAME_CARD, "at least as high as the point the card hangs from")
+		eq(up > 0, true, "and a little over the point")
+		near(numbers.NAME_CARD, 2.3, "where Integrated Third Person puts the card")
+		least, up = numbers.lift("player", false)
+		eq(least, nil, "top-down: as before") eq(up, 0)
+		least, up = numbers.lift("enemy", true)
+		eq(least, nil, "enemies have no name card") eq(up, 0)
+	end },
+
 	{ "the shadow: a third as far as Helldivers Arcade's, and 25% less opaque", function()
 		near(numbers.shadow_offset(15), 2 / 3, "small text")
 		near(numbers.shadow_offset(22.5), 2 / 3, "1080p")

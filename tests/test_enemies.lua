@@ -11,17 +11,34 @@ return {
 
 	{ "Integrated Third Person turns the edge off while the third person view steers", function()
 		local on = true
-		local import = obsidian.import
-		obsidian.import = function(id)
-			if id == "alomare.integratedthirdperson" then return { active = function() return on end } end
-			return import(id)
-		end
-		local fresh = dofile("src/enemies.lua")
-		local first = fresh.pins_off_screen({})
-		obsidian.import = import
-		eq(first, false, "third person on")
-		on = false
-		eq(fresh.pins_off_screen({}), true, "top-down camera")
+		with_itp({ active = function() return on end }, function()
+			eq(enemies.pins_off_screen({}), false, "third person on")
+			on = false
+			eq(enemies.pins_off_screen({}), true, "top-down camera")
+		end)
+	end },
+
+	{ "in the shoulder view the bars come down a little", function()
+		eq(enemies.LIFT, 13, "top-down as before")
+		eq(enemies.LIFT_SHOULDER > 0 and enemies.LIFT_SHOULDER < enemies.LIFT, true, "lower, still over the enemy")
+		eq(enemies.LIFT - enemies.LIFT_SHOULDER <= 8, true, "a small drop")
+	end },
+
+	{ "an anchor can be held at a least height over the feet", function()
+		local V3 = setmetatable({ x = function(v) return v.x end, y = function(v) return v.y end, z = function(v) return v.z end },
+			{ __call = function(_, x, y, z) return { x = x, y = y, z = z } end })
+		rawset(_G, "Vector3", V3)
+		rawset(_G, "Unit", { alive = function() return true end, world_position = function() return { x = 1, y = 2, z = 10 } end,
+			box = function() return nil end })
+		rawset(_G, "EntityAux", { state = function() return { max_hitpoints = 100 } end })
+		local unit = {}
+		local plain = enemies.anchor_of(unit)
+		near(plain.z, 10 + enemies.TIERS[1].lift, "the top of the enemy")
+		near(enemies.anchor_of(unit, 2.3).z, 12.3, "held up")
+		near(enemies.anchor_of(unit, 1).z, plain.z, "already higher")
+		rawset(_G, "Vector3", nil)
+		rawset(_G, "Unit", nil)
+		rawset(_G, "EntityAux", nil)
 	end },
 
 	{ "the white stretch: hits renew it, and it fades all at once after the last", function()

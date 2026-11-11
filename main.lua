@@ -15,7 +15,8 @@ local on = settings.setup(api.mod_settings, obsidian.settings and obsidian.setti
 
 ammo.install(function() return on.ammo end)
 grenades.install(function() return on.grenade_counter end)
-health.install(function() return on.player_health end, function() return on.player_health_numbers end)
+health.install(function() return on.player_health end, function() return on.player_health_numbers end,
+	function() return on.stamina_bar end)
 enemies.install(function() return on.enemy_health end)
 world_bars.install(function() return on.hide_world_health end, function() return on.hide_world_get_up end)
 reload.install(function() return on.reload_circle end, function() return on.ammo_circle end)

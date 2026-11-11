@@ -11,10 +11,18 @@
 -- Both rings sit to the left of the Helldiver, a little over the chest, in one color each, with a soft
 -- shadow that is darkest at the bottom left and clears toward the top right.
 --
+-- While Integrated Third Person steers the view from over the shoulder (src/itp.lua), the crosshair is in
+-- the middle of the screen and the Helldiver stands to one side of it, on the side away from the shoulder
+-- the camera sits over. The rings then keep a fixed spot at half the screen height, SHOULDER_GAP design
+-- units from the middle on that same side, out past the Helldiver. When the camera swaps shoulders, the spot
+-- eases across to the other side at SWAP_RATE.
+--
 -- Drawn on a kit with no frame, in screen pixels from the bottom left, as api.world.to_screen answers.
 -- Sizes are in the HUD's design units at 100% UI scale, times the HUD's scale: the resolution's scale
--- times the UI scale setting (hd_gui.lua:27-32, SaveManager "ui_scale", 0.75 to 1).
+-- times the UI scale setting (hd_gui.lua:27-32, SaveManager "ui_scale", 0.7 to 1, 0.8 by default on PC,
+-- GameSettings.UI_SCALE_*).
 local api = obsidian.import("obsidian.api")
+local itp = obsidian.module("src/itp")
 
 -- Photo Mode (or any mod) clearing the screen for pictures through Obsidian API's photo effect.
 local function photo_mode()
@@ -42,6 +50,26 @@ local DONE = 0.1 -- seconds a finished ring takes to grow and fade out
 local GROW = 0.45 -- how much bigger it ends, of its size
 local NEAR_END = 0.85 -- a reload that stops past this far counts as finished, not cancelled
 local BUTTON = 0.9 -- of the hole inside the ring, across, for the reload button
+-- The spot in the shoulder view: design units from the middle of the screen to the centre of the ring. With
+-- the default camera of Integrated Third Person (3 m back, 0.65 m to the side, a 70 degree view), the Helldiver
+-- spans about 63 to 159 design units from the middle at UI scale 1, and about 247 to 541 while the aim
+-- button zooms in. 250 clears the Helldiver at UI scale 0.7 and up, and at the default 0.8 the ring also
+-- stays between the crosshair and the zoomed-in Helldiver.
+M.SHOULDER_GAP = 250
+-- How fast the spot eases across: each second, what is left of the way shrinks by e to this power.
+M.SWAP_RATE = 10
+
+-- The spot in the shoulder view, in pixels, on a screen w by h: side 1 (the camera over the right shoulder) is
+-- left of the middle, -1 right of it, and anything between is on the way across.
+function M.shoulder_spot(w, h, side, scale)
+	return w / 2 - side * M.SHOULDER_GAP * scale, h / 2
+end
+
+-- The side `dt` seconds further from `current` toward `target`.
+function M.ease_side(current, target, dt)
+	if current == nil then return target end
+	return current + (target - current) * (1 - math.exp(-M.SWAP_RATE * math.max(0, dt or 0)))
+end
 
 -- How far the reload has come, from 0 to 1, or nil when the weapon isn't reloading.
 function M.progress(state)
@@ -116,6 +144,11 @@ function M.inner_radius(scale)
 	return (RADIUS - WIDTH) * scale
 end
 
+-- The radius out to the edge of the dark border, in pixels, for a scale.
+function M.outer_radius(scale)
+	return (RADIUS + EDGE) * scale
+end
+
 -- The ring, filled `p` of the way round from the top, clockwise, or counter-clockwise with look.ccw.
 -- look: { fill, track, ccw }, or nil for the reload ring's grey.
 function M.draw(kit, x, y, p, scale, look)
@@ -165,11 +198,15 @@ function M.install(reload_on, ammo_on)
 	local kit = obsidian.ui.canvas("betterhud_reload", { layer = 420 })
 	local failed = false
 	local clock = 0
+	local side = nil -- in the shoulder view, the side of the spot (M.shoulder_spot); nil otherwise
 	obsidian.on_frame(function()
 		local dt = rawget(_G, "ENGINE_DT") or 0.016
 		clock = clock + dt
 		local show_reload, show_ammo = reload_on(), ammo_on()
-		if not (show_reload or show_ammo) or not api.game.in_mission() or photo_mode() then return end
+		if not (show_reload or show_ammo) or not api.game.in_mission() or photo_mode() then
+			side = nil
+			return
+		end
 		local ok, err = pcall(function()
 			local st = api.game.state()
 			local hud = st and st.hud
@@ -177,6 +214,8 @@ function M.install(reload_on, ammo_on)
 			local w, h = g("Application").resolution()
 			local scale = M.scale(hud and hud.hd_gui, g("SaveManager"), w, h)
 			local V3 = g("Vector3")
+			-- The shoulder view: a fixed spot, easing across when the camera swaps shoulders.
+			side = itp.active() and M.ease_side(side, itp.shoulder(), dt) or nil
 			for _, player in ipairs(local_players()) do
 				local unit = player.unit
 				local weapon, state, kind = weapon_state(unit)
@@ -208,11 +247,18 @@ function M.install(reload_on, ammo_on)
 				local ammo_alpha = (show_ammo and share and not reloading and not p) and ammo_circle.alpha(t.shot, clock) or 0
 				local discharge = show_ammo and not p and kind == "arcweapon" and ammo_circle.discharge_alpha(t, clock)
 				if not hidden and (p or ammo_alpha > 0 or discharge) then
-					local at = g("Unit").world_position(unit, 0)
-					local x, y, inside = api.world.to_screen({ x = V3.x(at), y = V3.y(at), z = V3.z(at) + CHEST })
+					local x, y, inside
+					if side then
+						x, y = M.shoulder_spot(w, h, side, scale)
+						inside = true
+					else
+						local at = g("Unit").world_position(unit, 0)
+						x, y, inside = api.world.to_screen({ x = V3.x(at), y = V3.y(at), z = V3.z(at) + CHEST })
+						if x then x, y = x - M.LEFT * scale, y + M.UP * scale end
+					end
 					if x and inside then
 						local dx, dy = ammo_circle.shake_offset(t, clock)
-						local cx, cy = x - M.LEFT * scale + dx * scale, y + M.UP * scale + dy * scale
+						local cx, cy = x + dx * scale, y + dy * scale
 						if p then
 							kit:opacity(alpha)
 							M.draw(kit, cx, cy, p, scale * grow)

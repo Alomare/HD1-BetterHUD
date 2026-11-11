@@ -20,6 +20,8 @@ M.ROWS = {
 		info = "A red bar under each player card, with a white chunk fading where health was lost and a yellow bar over it while a shield holds. After 10 seconds at full health the bar fades to grey and half opacity." },
 	{ id = "player_health_numbers", kind = "toggle", default = false, label = "Health numbers",
 		info = "Current and maximum health at the right of each player bar." },
+	{ id = "stamina_bar", kind = "toggle", default = true, label = "Stamina bar",
+		info = "A thin white bar under the health bar of each player on this computer, emptying while sprinting and filling back up after. After 10 seconds full the bar fades to grey and half opacity. Players on other computers get none, as the game does not send stamina over the network." },
 	{ id = "enemy_health", kind = "toggle", default = true, label = "Enemy health bars",
 		info = "A bar over every enemy the player hits and every heavy that any player hurts. The bar of an enemy out of view waits at the edge of the screen." },
 	{ id = "reload_circle", kind = "toggle", default = true, label = "Reload circle",

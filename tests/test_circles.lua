@@ -22,6 +22,46 @@ return {
 		eq(reload.UP > 0 and reload.UP < 20, true, "a little up")
 	end },
 
+	{ "in the shoulder view the circles sit at half height, on the side away from the shoulder", function()
+		local x, y = reload.shoulder_spot(1920, 1080, 1, 1.2)
+		near(x, 960 - reload.SHOULDER_GAP * 1.2, "left with the camera over the right shoulder")
+		near(y, 540, "half height")
+		x = reload.shoulder_spot(1920, 1080, -1, 1.2)
+		near(x, 960 + reload.SHOULDER_GAP * 1.2, "right with the camera over the left shoulder")
+		near(reload.shoulder_spot(1920, 1080, 0, 1.2), 960, "half way across: the middle")
+	end },
+
+	{ "the shoulder view spot clears the Helldiver and the crosshair at every UI scale", function()
+		-- In design units from the middle at UI scale 1, with the default camera of Integrated Third Person:
+		-- the Helldiver spans 63 to 159, and from 247 while zoomed in to aim. Enemy indicators ring the
+		-- crosshair out to about 87 (0.085 of the screen height and the biggest mark, at 1080 lines).
+		local res = 1.5 -- 1920x1080
+		for _, ui in ipairs({ 0.7, 0.8, 0.9, 1 }) do
+			local scale = res * ui
+			local x = reload.shoulder_spot(1920, 1080, 1, scale)
+			local centre = (960 - x) / res
+			local inner, outer = centre - reload.outer_radius(scale) / res, centre + reload.outer_radius(scale) / res
+			eq(inner > 159, true, "past the Helldiver at UI scale " .. ui)
+			eq(inner > 87, true, "clear of the crosshair at UI scale " .. ui)
+			if ui <= 0.8 then eq(outer < 247, true, "short of the zoomed-in Helldiver at UI scale " .. ui) end
+		end
+	end },
+
+	{ "a shoulder swap eases the spot across instead of jumping", function()
+		eq(reload.ease_side(nil, -1, 0.016), -1, "a new shoulder view starts on the side")
+		local s = reload.ease_side(1, -1, 0.016)
+		eq((1 - s) / 2 < 0.2, true, "less than a fifth of the way in one frame")
+		local prev = s
+		for _ = 1, 3 do
+			s = reload.ease_side(s, -1, 0.016)
+			eq(s < prev and s > -1, true, "on the way")
+			prev = s
+		end
+		for _ = 1, 28 do s = reload.ease_side(s, -1, 0.016) end
+		near(s, -1, "across in about half a second", 0.02)
+		eq(reload.ease_side(0.5, -1, 0), 0.5, "no time, no move")
+	end },
+
 	{ "the shadow is darkest at the bottom left and clears at the top right", function()
 		near(reload.shadow_at(math.pi / 4), 0, "top right")
 		near(reload.shadow_at(math.pi * 5 / 4), 1, "bottom left")

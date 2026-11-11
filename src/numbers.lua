@@ -5,7 +5,14 @@
 -- fades out HOLD seconds after the last; the next hit after it has gone starts a new one.
 --
 -- Drawn on a kit with no frame, in screen pixels from the bottom left, as api.world.to_screen answers.
+--
+-- While Integrated Third Person steers the view from over the shoulder, it can draw the name card of each
+-- player over the head instead of at the feet: from a point NAME_CARD metres over the feet, the card
+-- hangs down (Hud.draw_player_name_in_world draws the name 21 design units under the point and the health
+-- bar under that). A number on a player then starts at least that high, NAME_GAP design units over the
+-- point, so the card stays clear.
 local api = obsidian.import("obsidian.api")
+local itp = obsidian.module("src/itp")
 
 -- Photo Mode (or any mod) clearing the screen for pictures through Obsidian API's photo effect.
 local function photo_mode()
@@ -24,6 +31,14 @@ local SIZE = 15 -- design units
 local SIDE = 16 -- design units right of the entity, for "next to the entity"
 local LIMIT = 48
 local ENEMY_INK, PLAYER_INK = { 255, 255, 255 }, { 255, 95, 75 }
+M.NAME_CARD, M.NAME_GAP = 2.3, 3 -- metres over the feet; design units over that point
+
+-- For a number on a `kind` target: the least height over the feet it starts at (nil for none) and the design
+-- units it goes up on screen from there. shoulder: the shoulder view steers the camera.
+function M.lift(kind, shoulder)
+	if shoulder and kind == "player" then return M.NAME_CARD, M.NAME_GAP end
+	return nil, 0
+end
 
 local live = {}
 local open = setmetatable({}, { __mode = "k" })
@@ -83,7 +98,7 @@ function M.look(n, now)
 	return rise, alpha
 end
 
-local function screen_of(n, position, scale)
+local function screen_of(n, position, scale, shoulder)
 	if position == "hit" and n.at then
 		local x, y, inside = api.world.to_screen(n.at)
 		return x, y, inside
@@ -93,12 +108,13 @@ local function screen_of(n, position, scale)
 		local spot = enemies.drawn[n.unit]
 		if spot and not spot.pinned then return spot.x, spot.y + 4 * scale, true end
 	end
-	local anchor = enemies.anchor_of(n.unit) or n.anchor
+	local least, up = M.lift(n.kind, shoulder)
+	local anchor = enemies.anchor_of(n.unit, least) or n.anchor
 	if not anchor then return nil end
 	n.anchor = anchor
 	local x, y, inside = api.world.to_screen(anchor)
 	if not x then return nil end
-	return x + SIDE * scale, y, inside
+	return x + SIDE * scale, y + up * scale, inside
 end
 
 -- A number in the look of Helldivers Arcade's stats under the player cards (cards.stat_line there): the
@@ -178,8 +194,9 @@ function M.install(which, mode, position)
 				scale = h / 720
 			end
 			local where = position()
+			local shoulder = itp.active()
 			for _, n in ipairs(live) do
-				local x, y, inside = screen_of(n, where, scale)
+				local x, y, inside = screen_of(n, where, scale, shoulder)
 				if x and inside then
 					local rise, alpha = M.look(n, clock)
 					local ink = n.kind == "player" and PLAYER_INK or ENEMY_INK

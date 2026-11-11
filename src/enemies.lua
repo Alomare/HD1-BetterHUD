@@ -4,12 +4,14 @@
 -- LAG_HOLD seconds after the last. A pulsing outline shows a burn (orange), poison (green) or stun (blue);
 -- the size follows the enemy's health, and a white flash marks a death. The bar of an enemy out of view
 -- waits on the screen's edge, EDGE design units in, on the side the enemy is.
--- With an older API, every damaged enemy gets a bar.
+-- With an older API, every damaged enemy gets a bar. While Integrated Third Person steers the view from over
+-- the shoulder, the gap under each bar is LIFT_SHOULDER design units instead of LIFT.
 --
 -- Drawn on a kit with no frame, in screen pixels from the bottom left, as api.world.to_screen answers.
 -- Sizes are in the HUD's design units, times the HUD's own scale, so they follow the UI scale setting.
 -- Health is the replicated hitpoints of every enemy, so the bars show on every player's game.
 local api = obsidian.import("obsidian.api")
+local itp = obsidian.module("src/itp")
 
 -- Photo Mode (or any mod) clearing the screen for pictures through Obsidian API's photo effect.
 local function photo_mode()
@@ -40,7 +42,9 @@ local TIERS = {
 	{ hp = 5000, w = 80, h = 8.3, lift = 8.0 },
 }
 M.TIERS = TIERS
-local LIFT = 13 -- design units between the anchor and the bar
+-- Design units between the anchor and the bar. The shoulder view looks across the ground rather than down
+-- on it, so the same gap reads taller there, and the bar comes down a little.
+M.LIFT, M.LIFT_SHOULDER = 13, 6
 
 local BACK = "#0d0d0d42"
 local OUTLINE = "#00000063"
@@ -191,19 +195,10 @@ end
 -- way to the enemy. Third Person Camera turns the view with the mouse, so a bar on the edge says nothing:
 -- the bar goes instead, as that mod's own labels do when not looked at. CameraManager.mod_cfg is the
 -- settings table that mod keeps while the third person view is on, and is nil otherwise. Integrated Third
--- Person answers the same through active() in what obsidian.import hands out.
-local itp
+-- Person answers the same through active() (src/itp.lua).
 function M.pins_off_screen(cam)
 	if type(cam) == "table" and cam.mod_cfg ~= nil then return false end
-	if itp == nil then
-		local ok, mod = pcall(function() return obsidian.import and obsidian.import("alomare.integratedthirdperson") end)
-		itp = ok and type(mod) == "table" and type(mod.active) == "function" and mod or false
-	end
-	if itp then
-		local ok, on = pcall(itp.active)
-		if ok and on then return false end
-	end
-	return true
+	return not itp.active()
 end
 
 -- Marks another mod puts on an enemy (M.mark): unit -> icon. A marked enemy's bar shows from the start,
@@ -488,7 +483,8 @@ local function draw_buildup(kit, unit, x, y, w, h, now, scale, ring_clear)
 	draw_icons(kit, by, x + w / 2, M.icons_top(y, h, ring_clear, marks[unit] ~= nil, scale), now, scale)
 end
 
-local function draw_bar(kit, b, now, scale)
+-- lift: design units between the anchor and the bar, M.LIFT or M.LIFT_SHOULDER.
+local function draw_bar(kit, b, now, scale, lift)
 	local unit = b.unit
 	if not b.dead or now - b.dead < 0.05 then
 		if g("Unit").alive(unit) then
@@ -502,7 +498,7 @@ local function draw_bar(kit, b, now, scale)
 	if not sx then return end
 	local t = tier(b.max)
 	local w, h = t.w * scale, math.max(2, t.h * scale)
-	local x, y = sx - w / 2, sy + LIFT * scale
+	local x, y = sx - w / 2, sy + lift * scale
 	if not inside then
 		-- Out of view: held on the nearest edge, clear of it by EDGE and the status outline.
 		if not M.pins_off_screen(g("CameraManager")) or behind(b.anchor) then return end
@@ -551,12 +547,14 @@ local function draw_bar(kit, b, now, scale)
 	draw_buildup(kit, unit, x, y, w, h, now, scale, math.max(2, RING * scale))
 end
 
--- The top of an enemy, in the level: where damage numbers sit next to it.
-function M.anchor_of(unit)
+-- The top of an enemy (or a player), in the level: where damage numbers sit next to it. at_least: metres
+-- over the feet the point stays at or above, or nil.
+function M.anchor_of(unit, at_least)
 	if not g("Unit").alive(unit) then return nil end
 	local at, V3 = g("Unit").world_position(unit, 0), g("Vector3")
 	local s = health(unit)
-	return { x = V3.x(at), y = V3.y(at), z = V3.z(at) + top_of(unit, tier(s and s.max_hitpoints or 1)) }
+	local top = top_of(unit, tier(s and s.max_hitpoints or 1))
+	return { x = V3.x(at), y = V3.y(at), z = V3.z(at) + math.max(top, at_least or top) }
 end
 
 function M.install(active)
@@ -601,7 +599,8 @@ function M.install(active)
 				local _, h = g("Application").resolution()
 				scale = h / 720
 			end
-			for i = math.min(#list, LIMIT), 1, -1 do draw_bar(kit, list[i], clock, scale) end
+			local lift = itp.active() and M.LIFT_SHOULDER or M.LIFT
+			for i = math.min(#list, LIMIT), 1, -1 do draw_bar(kit, list[i], clock, scale, lift) end
 			kit:opacity(1)
 		end)
 		if not ok and not failed then
