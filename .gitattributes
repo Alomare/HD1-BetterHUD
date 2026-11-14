@@ -11,3 +11,4 @@ tests export-ignore
 CHANGELOG.md export-ignore
 tools export-ignore
 thumbnail.jpg export-ignore
+docs export-ignore

@@ -6,11 +6,11 @@
     "en": "Better HUD"
   },
   "description": {
-    "en": "More on the HUD: rounds left in the magazine, a health bar under each player's card, health bars over enemies, damage numbers, and a reload circle and an ammo circle beside the Helldiver. Each part is an option here and a row on the pause menu's Mods page, and a change in one place shows in the other.",
-    "pt-BR": "Mais informações no HUD: balas restantes no carregador, uma barra de vida sob o cartão de cada jogador, barras de vida sobre os inimigos, números de dano, e um círculo de recarga e um círculo de munição ao lado do Helldiver. Cada parte é uma opção aqui e uma linha na página Mods do menu de pausa, e uma mudança em um lugar aparece no outro.",
-    "zh-CN": "HUD 上的更多信息：弹匣剩余弹药、每名玩家卡片下方的生命条、敌人头顶的生命条、伤害数字，以及 Helldiver 旁边的装填圈和弹药圈。每一项都是这里的一个选项，也是暂停菜单 Mods 页面中的一行，在一处更改，另一处也会同步。",
-    "fr": "Plus d'informations sur le HUD : les balles restantes dans le chargeur, une barre de vie sous la carte de chaque joueur, des barres de vie au-dessus des ennemis, des chiffres de dégâts, ainsi qu'un cercle de rechargement et un cercle de munitions à côté du Helldiver. Chaque élément est une option ici et une ligne de la page Mods du menu pause, et un changement à un endroit apparaît dans l'autre.",
-    "es": "Más información en el HUD: las balas que quedan en el cargador, una barra de salud bajo la tarjeta de cada jugador, barras de salud sobre los enemigos, números de daño, y un círculo de recarga y un círculo de munición junto al Helldiver. Cada parte es una opción aquí y una fila en la página Mods del menú de pausa, y un cambio en un sitio se ve en el otro."
+    "en": "Adds round counts, health bars and damage numbers to the HUD.",
+    "pt-BR": "Adiciona contagem de balas, barras de vida e números de dano ao HUD.",
+    "zh-CN": "为 HUD 添加弹药计数、生命条和伤害数字。",
+    "fr": "Ajoute le compte des balles, des barres de vie et des chiffres de dégâts au HUD.",
+    "es": "Añade el recuento de balas, barras de salud y números de daño al HUD."
   },
   "authors": [
     "Alomare"
