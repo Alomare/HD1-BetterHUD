@@ -28,7 +28,7 @@ function with_itp(mod, fn)
 	local itp = obsidian.module("src/itp")
 	local import = obsidian.import
 	obsidian.import = function(id)
-		if id == "alomare.integratedthirdperson" then return mod end
+		if id == "alomare.unleashedcamera" then return mod end
 		return import(id)
 	end
 	itp.reset()

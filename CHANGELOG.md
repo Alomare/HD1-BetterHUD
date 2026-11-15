@@ -4,6 +4,7 @@ New, changed, fixed or removed features, one line each, brief and direct. The se
 
 ## Next
 
+- Changed: works with Unleashed Camera 0.8.0 and later, under the new id, and still with the old one.
 - Changed: the options name Unleashed Camera, the new name of Integrated Third Person.
 
 ## 1.17.1

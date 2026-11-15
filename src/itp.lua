@@ -1,4 +1,4 @@
--- Unleashed Camera (alomare.integratedthirdperson), the over-the-shoulder camera mod, as Better HUD
+-- Unleashed Camera (alomare.unleashedcamera, before 0.8.0 alomare.integratedthirdperson), the camera mod, as Better HUD
 -- reads it: whether the shoulder view steers the camera, and over which shoulder the camera sits. Looked up
 -- once, on first use, through obsidian.import; a missing mod, or one without active(), counts as not
 -- installed. shoulder() came with Unleashed Camera 0.2.0: 1 with the camera over the right shoulder,
@@ -10,8 +10,14 @@ local mod -- nil: not looked up yet; false: not installed
 
 local function get()
 	if mod == nil then
-		local ok, found = pcall(function() return obsidian.import and obsidian.import("alomare.integratedthirdperson") end)
-		mod = ok and type(found) == "table" and type(found.active) == "function" and found or false
+		mod = false
+		for _, id in ipairs({ "alomare.unleashedcamera", "alomare.integratedthirdperson" }) do
+			local ok, found = pcall(function() return obsidian.import and obsidian.import(id) end)
+			if ok and type(found) == "table" and type(found.active) == "function" then
+				mod = found
+				break
+			end
+		end
 	end
 	return mod or nil
 end
