@@ -23,7 +23,7 @@ function near(got, want, what, tolerance)
 	if math.abs(got - want) > (tolerance or 1e-6) then error((what or "value") .. ": expected " .. want .. ", got " .. got, 2) end
 end
 
--- Runs fn while obsidian.import answers `mod` for Integrated Third Person (nil: not installed).
+-- Runs fn while obsidian.import answers `mod` for Unleashed Camera (nil: not installed).
 function with_itp(mod, fn)
 	local itp = obsidian.module("src/itp")
 	local import = obsidian.import

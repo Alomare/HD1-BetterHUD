@@ -1,4 +1,4 @@
--- How Better HUD reads Integrated Third Person (src/itp.lua).
+-- How Better HUD reads Unleashed Camera (src/itp.lua).
 local itp = obsidian.module("src/itp")
 
 return {

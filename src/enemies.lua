@@ -4,7 +4,7 @@
 -- LAG_HOLD seconds after the last. A pulsing outline shows a burn (orange), poison (green) or stun (blue);
 -- the size follows the enemy's health, and a white flash marks a death. The bar of an enemy out of view
 -- waits on the screen's edge, EDGE design units in, on the side the enemy is.
--- With an older API, every damaged enemy gets a bar. While Integrated Third Person steers the view from over
+-- With an older API, every damaged enemy gets a bar. While Unleashed Camera steers the view from over
 -- the shoulder, the gap under each bar is LIFT_SHOULDER design units instead of LIFT.
 --
 -- Drawn on a kit with no frame, in screen pixels from the bottom left, as api.world.to_screen answers.

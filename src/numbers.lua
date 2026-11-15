@@ -6,7 +6,7 @@
 --
 -- Drawn on a kit with no frame, in screen pixels from the bottom left, as api.world.to_screen answers.
 --
--- While Integrated Third Person steers the view from over the shoulder, it can draw the name card of each
+-- While Unleashed Camera steers the view from over the shoulder, it can draw the name card of each
 -- player over the head instead of at the feet: from a point NAME_CARD metres over the feet, the card
 -- hangs down (Hud.draw_player_name_in_world draws the name 21 design units under the point and the health
 -- bar under that). A number on a player then starts at least that high, NAME_GAP design units over the

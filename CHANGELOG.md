@@ -2,6 +2,10 @@
 
 New, changed, fixed or removed features, one line each, brief and direct. The section for a release becomes the release notes.
 
+## Next
+
+- Changed: the options name Unleashed Camera, the new name of Integrated Third Person.
+
 ## 1.17.1
 
 - Changed the reload and ammo circles in the shoulder view of Integrated Third Person to half again as big, closer to the middle of the screen, and on the side away from the Helldiver.

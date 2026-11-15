@@ -113,7 +113,7 @@ return {
 		local least, up = numbers.lift("player", true)
 		eq(least, numbers.NAME_CARD, "at least as high as the point the card hangs from")
 		eq(up > 0, true, "and a little over the point")
-		near(numbers.NAME_CARD, 2.3, "where Integrated Third Person puts the card")
+		near(numbers.NAME_CARD, 2.3, "where Unleashed Camera puts the card")
 		least, up = numbers.lift("player", false)
 		eq(least, nil, "top-down: as before") eq(up, 0)
 		least, up = numbers.lift("enemy", true)

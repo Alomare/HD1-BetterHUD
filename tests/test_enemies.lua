@@ -9,7 +9,7 @@ return {
 		eq(enemies.pins_off_screen({ mod_cfg = {} }), false, "third person view on")
 	end },
 
-	{ "Integrated Third Person turns the edge off while the third person view steers", function()
+	{ "Unleashed Camera turns the edge off while the third person view steers", function()
 		local on = true
 		with_itp({ active = function() return on end }, function()
 			eq(enemies.pins_off_screen({}), false, "third person on")

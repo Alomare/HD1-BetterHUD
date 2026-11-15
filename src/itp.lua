@@ -1,7 +1,7 @@
--- Integrated Third Person (alomare.integratedthirdperson), the over-the-shoulder camera mod, as Better HUD
+-- Unleashed Camera (alomare.integratedthirdperson), the over-the-shoulder camera mod, as Better HUD
 -- reads it: whether the shoulder view steers the camera, and over which shoulder the camera sits. Looked up
 -- once, on first use, through obsidian.import; a missing mod, or one without active(), counts as not
--- installed. shoulder() came with Integrated Third Person 0.2.0: 1 with the camera over the right shoulder,
+-- installed. shoulder() came with Unleashed Camera 0.2.0: 1 with the camera over the right shoulder,
 -- -1 over the left, nil in the top-down view. An older version has no shoulder(), and the camera there sits
 -- over the right shoulder.
 local M = {}
