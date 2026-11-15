@@ -1,4 +1,4 @@
--- How Better HUD reads Unleashed Camera (src/itp.lua).
+-- How Better HUD reads Eyes of Liberty (src/itp.lua).
 local itp = obsidian.module("src/itp")
 
 return {

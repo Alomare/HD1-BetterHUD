@@ -11,7 +11,7 @@
 -- Both rings sit to the left of the Helldiver, a little over the chest, in one color each, with a soft
 -- shadow that is darkest at the bottom left and clears toward the top right.
 --
--- While Unleashed Camera steers the view from over the shoulder (src/itp.lua), the crosshair is in
+-- While Eyes of Liberty steers the view from over the shoulder (src/itp.lua), the crosshair is in
 -- the middle of the screen and the Helldiver stands to one side of it, on the side away from the shoulder
 -- the camera sits over. The rings then keep a fixed spot at half the screen height, SHOULDER_GAP design
 -- units from the middle on the other side, the side of the shoulder, where the Helldiver isn't, and draw
@@ -51,7 +51,7 @@ local GROW = 0.45 -- how much bigger it ends, of its size
 local NEAR_END = 0.85 -- a reload that stops past this far counts as finished, not cancelled
 local BUTTON = 0.9 -- of the hole inside the ring, across, for the reload button
 -- The spot in the shoulder view: design units from the middle of the screen to the centre of the ring, on
--- the side away from the Helldiver. The enemy indicators of Unleashed Camera ring the crosshair out to
+-- the side away from the Helldiver. The enemy indicators of Eyes of Liberty ring the crosshair out to
 -- about 131 pixels at 1080 lines (0.11 of the screen height, plus the arc and arrow of the largest mark),
 -- which no UI scale changes; 150 keeps the ring outside them from UI scale 0.7 up.
 M.SHOULDER_GAP = 150

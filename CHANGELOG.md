@@ -2,10 +2,10 @@
 
 New, changed, fixed or removed features, one line each, brief and direct. The section for a release becomes the release notes.
 
-## Next
+## 1.17.2
 
-- Changed: works with Unleashed Camera 0.8.0 and later, under the new id, and still with the old one.
-- Changed: the options name Unleashed Camera, the new name of Integrated Third Person.
+- Changed: works with Eyes of Liberty, the new name of Integrated Third Person and Unleashed Camera, and still with the older ids.
+- Changed: the options name Eyes of Liberty.
 
 ## 1.17.1
 

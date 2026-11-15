@@ -33,7 +33,7 @@ return {
 	end },
 
 	{ "the shoulder view ring stays clear of the enemy indicators at every UI scale", function()
-		-- Unleashed Camera draws the enemy indicators out to 0.11 of the screen height, plus the arc
+		-- Eyes of Liberty draws the enemy indicators out to 0.11 of the screen height, plus the arc
 		-- (2.4 px) and arrow (5.5 px) of the largest mark (1.5 times), at 1080 lines.
 		local marks = 0.11 * 1080 + (2.4 + 5.5) * 1.5
 		local res = 1.5 -- 1920x1080
