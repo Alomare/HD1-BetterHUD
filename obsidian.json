@@ -6,7 +6,7 @@
     "en": "Better HUD"
   },
   "description": {
-    "en": "Adds round counts, health bars and damage numbers to the HUD.",
+    "en": "Adds useful and configurable HUD elements: on-character ammo count, enemy and ally health bars that show status effects and damage numbers.",
     "pt-BR": "Adiciona contagem de balas, barras de vida e números de dano ao HUD.",
     "zh-CN": "为 HUD 添加弹药计数、生命条和伤害数字。",
     "fr": "Ajoute le compte des balles, des barres de vie et des chiffres de dégâts au HUD.",
