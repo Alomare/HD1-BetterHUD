@@ -1,16 +1,16 @@
 {
   "obsidian": 1,
   "id": "alomare.betterhud",
-  "version": "1.17.2",
+  "version": "1.17.3",
   "name": {
     "en": "Better HUD"
   },
   "description": {
     "en": "Adds useful and configurable HUD elements: on-character ammo count, enemy and ally health bars that show status effects and damage numbers.",
-    "pt-BR": "Adiciona contagem de balas, barras de vida e números de dano ao HUD.",
-    "zh-CN": "为 HUD 添加弹药计数、生命条和伤害数字。",
-    "fr": "Ajoute le compte des balles, des barres de vie et des chiffres de dégâts au HUD.",
-    "es": "Añade el recuento de balas, barras de salud y números de daño al HUD."
+    "pt-BR": "Adiciona elementos de HUD úteis e configuráveis: contagem de munição no personagem, barras de vida de inimigos e aliados que mostram efeitos de status e números de dano.",
+    "zh-CN": "添加实用且可配置的 HUD 元素：角色身上的弹药计数，以及显示状态效果和伤害数字的敌人与队友生命条。",
+    "fr": "Ajoute des éléments de HUD utiles et configurables : les munitions affichées sur le personnage, des barres de vie des ennemis et des alliés qui montrent les effets d'état et les chiffres de dégâts.",
+    "es": "Añade elementos de HUD útiles y configurables: la munición sobre el personaje, barras de salud de enemigos y aliados que muestran efectos de estado y números de daño."
   },
   "authors": [
     "Alomare"

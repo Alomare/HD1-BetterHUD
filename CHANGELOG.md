@@ -2,6 +2,10 @@
 
 New, changed, fixed or removed features, one line each, brief and direct. The section for a release becomes the release notes.
 
+## 1.17.3
+
+- Changed: a shorter description in Obsidian and the store.
+
 ## 1.17.2
 
 - Changed: works with Eyes of Liberty, the new name of Integrated Third Person and Unleashed Camera, and still with the older ids.
