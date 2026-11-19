@@ -205,6 +205,8 @@ function M.install(reload_on, ammo_on)
 		local dt = rawget(_G, "ENGINE_DT") or 0.016
 		clock = clock + dt
 		local show_reload, show_ammo = reload_on(), ammo_on()
+		-- Eyes of Liberty's ammo bar shows the same in third person: the circle steps aside.
+		if show_ammo and itp.ammo_bar() then show_ammo = false end
 		if not (show_reload or show_ammo) or not api.game.in_mission() or photo_mode() then
 			side = nil
 			return

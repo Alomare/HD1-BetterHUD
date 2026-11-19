@@ -41,6 +41,15 @@ function M.shoulder()
 	return 1
 end
 
+-- Whether Eyes of Liberty draws its ammo bar now (ammo_bar(), since its 0.14.0), in place of the ammo
+-- circle. false for a version without it.
+function M.ammo_bar()
+	local m = get()
+	if not (m and type(m.ammo_bar) == "function") then return false end
+	local ok, on = pcall(m.ammo_bar)
+	return ok and on == true
+end
+
 -- Looks the mod up again on next use, for the tests.
 function M.reset()
 	mod = nil

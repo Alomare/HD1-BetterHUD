@@ -34,6 +34,21 @@ return {
 		end)
 	end },
 
+	{ "the ammo bar of Eyes of Liberty: the circle steps aside only while it shows", function()
+		local bar = true
+		with_itp({ active = function() return true end, ammo_bar = function() return bar end }, function()
+			eq(itp.ammo_bar(), true)
+			bar = false
+			eq(itp.ammo_bar(), false)
+		end)
+		with_itp({ active = function() return true end }, function()
+			eq(itp.ammo_bar(), false, "a version without the bar")
+		end)
+		with_itp({ active = function() return true end, ammo_bar = function() error("broken") end }, function()
+			eq(itp.ammo_bar(), false, "an error: the circle shows")
+		end)
+	end },
+
 	{ "an error in the mod counts as the top-down view", function()
 		with_itp({ active = function() error("broken") end, shoulder = function() error("broken") end }, function()
 			eq(itp.active(), false)
