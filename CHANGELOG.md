@@ -2,9 +2,9 @@
 
 New, changed, fixed or removed features, one line each, brief and direct. The section for a release becomes the release notes.
 
-## Next
+## 1.18.0
 
-- Changed: The ammo circle stays hidden while the Eyes of Liberty ammo bar shows in third person.
+- Changed: The ammo and reload circles stay hidden while the Eyes of Liberty ammo bar shows in third person; the bar shows the reload instead.
 
 ## 1.17.3
 
